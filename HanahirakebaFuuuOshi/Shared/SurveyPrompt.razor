@@ -1,16 +1,54 @@
-﻿<div class="alert alert-secondary mt-4">
-	<span class="oi oi-pencil me-2" aria-hidden="true"></span>
-	<strong>@Title</strong>
+﻿@using HanahirakebaFuuuOshi.OAuth
+@using HanahirakebaFuuuOshi.Config
+@inject OAuth2Twitter author
+@inject ConfigStatefulService config
 
-	<span class="text-nowrap">
-		Please take our
-		<a target="_blank" class="font-weight-bold" href="https://go.microsoft.com/fwlink/?linkid=2149017">brief survey</a>
-	</span>
-	and tell us what you think.
-</div>
+@if (isInCompleteAuth) {
+<div class="alert alert-secondary mt-4 ">
+	<div>
+		<button @onclick="Auth" class=@clickedAuthCssClass>認証</button>
+			@if (isInputPin) {
+				<input type="text" @bind="pin" /><button @onclick="SendPin">送信</button>
+			}
+			@if (isFailedAuth) {
+				<div><strong>PINコードが間違っています。</strong></div>
+				<div><button @onclick="Auth">再認証</button></div>
+			}
+		</div>
+	</div>
+}
 
 @code {
-	// Demonstrates how a parent component can supply parameters
-	[Parameter]
-	public string Title { get; set; }
+
+
+	private bool isClickedAuth = true;
+
+	private bool isInputPin = false;
+
+	private string clickedAuthCssClass => isClickedAuth ? null : "collapse";
+
+	private string inputPinCssClass => isInputPin ? null : "collapse";
+
+	private string pin;
+
+	private bool isFailedAuth = false;
+
+	private bool isInCompleteAuth = true;
+
+	protected override void OnInitialized() {
+		isInCompleteAuth = config.userClient == null;
+	}
+
+	private async Task Auth() {
+		await Task.Run(() => author.Auth());
+		isClickedAuth = false;
+		isInputPin = true;
+	}
+
+	private async Task SendPin() {
+		var result = !(await author.SendPin(pin));
+		isFailedAuth = result;
+		isInCompleteAuth = result;
+	}
 }
+

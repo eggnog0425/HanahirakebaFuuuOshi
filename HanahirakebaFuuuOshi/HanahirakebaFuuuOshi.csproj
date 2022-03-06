@@ -62,4 +62,12 @@
 		<Content Remove="Properties\launchSettings.json" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="TweetinviAPI" Version="5.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Encrypt\" />
+	</ItemGroup>
+
 </Project>
